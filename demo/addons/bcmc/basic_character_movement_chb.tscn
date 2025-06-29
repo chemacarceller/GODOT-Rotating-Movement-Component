@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://bxeu4tsp3s7rv"]
+
+[ext_resource type="Script" uid="uid://bt4ujcpi7voa3" path="res://addons/bcmc/basic_character_movement_chb.gd" id="1_c81ep"]
+
+[node name="BasicCharacterMovement" type="Node"]
+script = ExtResource("1_c81ep")

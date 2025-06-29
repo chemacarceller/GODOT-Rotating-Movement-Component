@@ -1,0 +1,90 @@
+[gd_scene load_steps=14 format=3 uid="uid://bm2gmvms40uh5"]
+
+[ext_resource type="Material" uid="uid://ys0i24akov6o" path="res://levels/mainlevel/world/materials/chess2.tres" id="1_oqgkk"]
+[ext_resource type="Material" uid="uid://d11jc07yunku8" path="res://levels/mainlevel/world/materials/bricks2.tres" id="1_qxop4"]
+[ext_resource type="Material" uid="uid://clqst5q3drbxa" path="res://levels/mainlevel/world/materials/chess3.tres" id="3_yryys"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_2q7lk"]
+size = Vector3(10, 5, 10)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_a1h3m"]
+size = Vector3(10, 5, 10)
+
+[sub_resource type="BoxMesh" id="BoxMesh_fha7l"]
+size = Vector3(2, 2.5, 12)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_2q7lk"]
+size = Vector3(2, 2.5, 12)
+
+[sub_resource type="BoxMesh" id="BoxMesh_a1h3m"]
+size = Vector3(2, 2.5, 2)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_vkygj"]
+size = Vector3(2, 2.5, 2)
+
+[sub_resource type="PrismMesh" id="PrismMesh_fha7l"]
+left_to_right = 0.0
+size = Vector3(10, 2.5, 2)
+
+[sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_fha7l"]
+data = PackedVector3Array(-5, 1.25, 1, 5, -1.25, 1, -5, -1.25, 1, -5, 1.25, -1, -5, -1.25, -1, 5, -1.25, -1, -5, 1.25, 1, -5, 1.25, -1, 5, -1.25, 1, -5, 1.25, -1, 5, -1.25, -1, 5, -1.25, 1, -5, 1.25, -1, -5, 1.25, 1, -5, -1.25, -1, -5, 1.25, 1, -5, -1.25, 1, -5, -1.25, -1, -5, -1.25, 1, 5, -1.25, 1, -5, -1.25, -1, 5, -1.25, 1, 5, -1.25, -1, -5, -1.25, -1)
+
+[sub_resource type="PrismMesh" id="PrismMesh_kj1l2"]
+left_to_right = 0.0
+size = Vector3(8, 2.5, 2)
+
+[sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_2q7lk"]
+data = PackedVector3Array(-4, 1.25, 1, 4, -1.25, 1, -4, -1.25, 1, -4, 1.25, -1, -4, -1.25, -1, 4, -1.25, -1, -4, 1.25, 1, -4, 1.25, -1, 4, -1.25, 1, -4, 1.25, -1, 4, -1.25, -1, 4, -1.25, 1, -4, 1.25, -1, -4, 1.25, 1, -4, -1.25, -1, -4, 1.25, 1, -4, -1.25, 1, -4, -1.25, -1, -4, -1.25, 1, 4, -1.25, 1, -4, -1.25, -1, 4, -1.25, 1, 4, -1.25, -1, -4, -1.25, -1)
+
+[node name="Platform" type="Node"]
+
+[node name="CentralCube" type="StaticBody3D" parent="."]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="CentralCube"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.5, 0)
+material_override = ExtResource("1_qxop4")
+mesh = SubResource("BoxMesh_2q7lk")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="CentralCube"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.5, 0)
+shape = SubResource("BoxShape3D_a1h3m")
+
+[node name="LateralCube" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 1.25, 1)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="LateralCube"]
+material_override = ExtResource("1_oqgkk")
+mesh = SubResource("BoxMesh_fha7l")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="LateralCube"]
+shape = SubResource("BoxShape3D_2q7lk")
+
+[node name="LastCube" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 3.75, -4)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="LastCube"]
+material_override = ExtResource("3_yryys")
+mesh = SubResource("BoxMesh_a1h3m")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="LastCube"]
+shape = SubResource("BoxShape3D_vkygj")
+
+[node name="Ramp1" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.25, 6)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Ramp1"]
+material_override = ExtResource("1_oqgkk")
+mesh = SubResource("PrismMesh_fha7l")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Ramp1"]
+shape = SubResource("ConcavePolygonShape3D_fha7l")
+
+[node name="Ramp2" type="StaticBody3D" parent="."]
+transform = Transform3D(-4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, -6, 3.75, 1)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Ramp2"]
+material_override = ExtResource("1_oqgkk")
+mesh = SubResource("PrismMesh_kj1l2")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Ramp2"]
+shape = SubResource("ConcavePolygonShape3D_2q7lk")

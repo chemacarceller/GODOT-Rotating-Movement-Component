@@ -1,0 +1,31 @@
+[gd_scene load_steps=7 format=3 uid="uid://525b5dkydx72"]
+
+[ext_resource type="Script" uid="uid://ci1q23i1ulyt8" path="res://levels/main_level.gd" id="1_ldao0"]
+[ext_resource type="PackedScene" uid="uid://wnx8qbw2ogkl" path="res://characters/manequin1/manequin1.tscn" id="2_55n5f"]
+[ext_resource type="PackedScene" uid="uid://2af5fg3je1pu" path="res://levels/mainlevel/world.tscn" id="2_ldao0"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_ilwad"]
+sky_horizon_color = Color(0.662243, 0.671743, 0.686743, 1)
+ground_horizon_color = Color(0.662243, 0.671743, 0.686743, 1)
+
+[sub_resource type="Sky" id="Sky_0vhbo"]
+sky_material = SubResource("ProceduralSkyMaterial_ilwad")
+
+[sub_resource type="Environment" id="Environment_ldao0"]
+background_mode = 2
+sky = SubResource("Sky_0vhbo")
+tonemap_mode = 2
+glow_enabled = true
+
+[node name="MainLevel" type="Node"]
+script = ExtResource("1_ldao0")
+character = ExtResource("2_55n5f")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_ldao0")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(-0.866023, -0.433016, 0.250001, 0, 0.499998, 0.866027, -0.500003, 0.749999, -0.43301, 0, 0, 0)
+shadow_enabled = true
+
+[node name="World" parent="." instance=ExtResource("2_ldao0")]

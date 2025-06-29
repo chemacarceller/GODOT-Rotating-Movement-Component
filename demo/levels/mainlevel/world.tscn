@@ -1,0 +1,261 @@
+[gd_scene load_steps=26 format=3 uid="uid://2af5fg3je1pu"]
+
+[ext_resource type="Material" uid="uid://c21nbvktru48d" path="res://levels/mainlevel/world/materials/chess1.tres" id="1_1k8js"]
+[ext_resource type="Material" uid="uid://bnpfajytr3w4x" path="res://levels/mainlevel/world/materials/bricks1.tres" id="3_r28mn"]
+[ext_resource type="PackedScene" uid="uid://d34e4jvg0j3bo" path="res://addons/rotmc/rotating_movement_nod.tscn" id="4_a1h3m"]
+[ext_resource type="PackedScene" uid="uid://bm2gmvms40uh5" path="res://levels/mainlevel/world/central_object.tscn" id="4_fha7l"]
+[ext_resource type="Texture2D" uid="uid://dbwu5u4lydio6" path="res://levels/mainlevel/world/textures/chess.png" id="5_2q7lk"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_mldsh"]
+size = Vector3(50, 1, 50)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_faa3e"]
+size = Vector3(50, 1, 50)
+
+[sub_resource type="BoxMesh" id="BoxMesh_faa3e"]
+size = Vector3(50, 6, 1)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_r28mn"]
+size = Vector3(50, 6, 1)
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_vkygj"]
+top_radius = 3.0
+bottom_radius = 2.9
+height = 1.0
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_kj1l2"]
+albedo_color = Color(1, 1, 0.121569, 1)
+albedo_texture = ExtResource("5_2q7lk")
+uv1_scale = Vector3(5, 5, 5)
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_wyxhm"]
+margin = 0.0
+height = 1.0
+radius = 3.0
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ih5o8"]
+albedo_color = Color(0.341176, 0.882353, 0.298039, 1)
+albedo_texture = ExtResource("5_2q7lk")
+uv1_scale = Vector3(4, 4, 4)
+
+[sub_resource type="BoxMesh" id="BoxMesh_r28mn"]
+size = Vector3(0.75, 0.75, 0.75)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_2q7lk"]
+albedo_color = Color(0.14902, 0.188235, 1, 1)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_fha7l"]
+size = Vector3(0.75, 0.75, 0.75)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_2q7lk"]
+size = Vector3(0.75, 0.75, 0.75)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_a1h3m"]
+size = Vector3(0.75, 0.75, 0.75)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_7kt7w"]
+albedo_color = Color(0.105882, 0.835294, 0.176471, 1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_xo1ao"]
+albedo_color = Color(1, 1, 0.176471, 1)
+
+[sub_resource type="SphereMesh" id="SphereMesh_2q7lk"]
+radius = 1.0
+height = 2.0
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_a1h3m"]
+albedo_color = Color(0.633339, 0.284352, 0.918717, 1)
+albedo_texture = ExtResource("5_2q7lk")
+uv1_scale = Vector3(3, 3, 3)
+
+[sub_resource type="BoxMesh" id="BoxMesh_fha7l"]
+size = Vector3(1.5, 1.5, 1.5)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_vkygj"]
+albedo_color = Color(0.416262, 0.267781, 0.0389879, 1)
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_vkygj"]
+radius = 1.0
+
+[node name="World" type="Node"]
+
+[node name="StaticBodies" type="Node" parent="."]
+
+[node name="Floor" type="StaticBody3D" parent="StaticBodies"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
+
+[node name="FloorMesh" type="MeshInstance3D" parent="StaticBodies/Floor"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.0680733)
+material_override = ExtResource("1_1k8js")
+mesh = SubResource("BoxMesh_mldsh")
+
+[node name="FloorColisionShape" type="CollisionShape3D" parent="StaticBodies/Floor"]
+shape = SubResource("BoxShape3D_faa3e")
+
+[node name="Walls" type="Node" parent="StaticBodies"]
+
+[node name="Wall1" type="StaticBody3D" parent="StaticBodies/Walls"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, -25)
+
+[node name="Wall1Mesh" type="MeshInstance3D" parent="StaticBodies/Walls/Wall1"]
+material_override = ExtResource("3_r28mn")
+mesh = SubResource("BoxMesh_faa3e")
+
+[node name="Wall1CollisionShape" type="CollisionShape3D" parent="StaticBodies/Walls/Wall1"]
+shape = SubResource("BoxShape3D_r28mn")
+
+[node name="Wall4" type="StaticBody3D" parent="StaticBodies/Walls"]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 25, 3, 0)
+
+[node name="Wall4Mesh" type="MeshInstance3D" parent="StaticBodies/Walls/Wall4"]
+material_override = ExtResource("3_r28mn")
+mesh = SubResource("BoxMesh_faa3e")
+
+[node name="Wall4CollisionShape" type="CollisionShape3D" parent="StaticBodies/Walls/Wall4"]
+shape = SubResource("BoxShape3D_r28mn")
+
+[node name="Wall3" type="StaticBody3D" parent="StaticBodies/Walls"]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -25, 3, 0)
+
+[node name="Wall3Mesh" type="MeshInstance3D" parent="StaticBodies/Walls/Wall3"]
+material_override = ExtResource("3_r28mn")
+mesh = SubResource("BoxMesh_faa3e")
+
+[node name="Wall3CollisionShape" type="CollisionShape3D" parent="StaticBodies/Walls/Wall3"]
+shape = SubResource("BoxShape3D_r28mn")
+
+[node name="Wall2" type="StaticBody3D" parent="StaticBodies/Walls"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, 25)
+
+[node name="Wall2Mesh" type="MeshInstance3D" parent="StaticBodies/Walls/Wall2"]
+material_override = ExtResource("3_r28mn")
+mesh = SubResource("BoxMesh_faa3e")
+
+[node name="Wall2CollisionShape" type="CollisionShape3D" parent="StaticBodies/Walls/Wall2"]
+shape = SubResource("BoxShape3D_r28mn")
+
+[node name="Platform" parent="StaticBodies" instance=ExtResource("4_fha7l")]
+
+[node name="RotatingPlatform" type="StaticBody3D" parent="StaticBodies"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 17, 0.5, 17)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="StaticBodies/RotatingPlatform"]
+mesh = SubResource("CylinderMesh_vkygj")
+surface_material_override/0 = SubResource("StandardMaterial3D_kj1l2")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBodies/RotatingPlatform"]
+shape = SubResource("CylinderShape3D_wyxhm")
+
+[node name="RotatingMovement" parent="StaticBodies/RotatingPlatform" instance=ExtResource("4_a1h3m")]
+rotatingVector = Vector3(0, 1, 0)
+speed = 10.0
+
+[node name="RotatingPlatform2" type="AnimatableBody3D" parent="StaticBodies"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 17, 0.5, 4)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="StaticBodies/RotatingPlatform2"]
+mesh = SubResource("CylinderMesh_vkygj")
+surface_material_override/0 = SubResource("StandardMaterial3D_ih5o8")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBodies/RotatingPlatform2"]
+shape = SubResource("CylinderShape3D_wyxhm")
+
+[node name="RotatingMovement" parent="StaticBodies/RotatingPlatform2" instance=ExtResource("4_a1h3m")]
+rotatingVector = Vector3(0, 1, 0)
+speed = 10.0
+
+[node name="RigidBodies" type="Node" parent="."]
+
+[node name="Cube 1" type="StaticBody3D" parent="RigidBodies"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.4693, 0.890553, 9.11442)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="RigidBodies/Cube 1"]
+mesh = SubResource("BoxMesh_r28mn")
+surface_material_override/0 = SubResource("StandardMaterial3D_2q7lk")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="RigidBodies/Cube 1"]
+shape = SubResource("BoxShape3D_fha7l")
+
+[node name="RotatingMovement" parent="RigidBodies/Cube 1" instance=ExtResource("4_a1h3m")]
+rotatingVector = Vector3(0, 1, 1)
+speed = 60.0
+
+[node name="Cube 2" type="StaticBody3D" parent="RigidBodies"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.61111, 6.62989, 1.01012)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="RigidBodies/Cube 2"]
+mesh = SubResource("BoxMesh_r28mn")
+surface_material_override/0 = SubResource("StandardMaterial3D_2q7lk")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="RigidBodies/Cube 2"]
+shape = SubResource("BoxShape3D_2q7lk")
+
+[node name="RotatingMovement" parent="RigidBodies/Cube 2" instance=ExtResource("4_a1h3m")]
+rotatingVector = Vector3(1, 1, 0)
+speed = 60.0
+
+[node name="Cube 3" type="StaticBody3D" parent="RigidBodies"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.46159, 0.947863, 13.577)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="RigidBodies/Cube 3"]
+mesh = SubResource("BoxMesh_r28mn")
+surface_material_override/0 = SubResource("StandardMaterial3D_2q7lk")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="RigidBodies/Cube 3"]
+shape = SubResource("BoxShape3D_a1h3m")
+
+[node name="RotatingMovement" parent="RigidBodies/Cube 3" instance=ExtResource("4_a1h3m")]
+rotatingVector = Vector3(1, 0, 1)
+speed = 60.0
+
+[node name="Cube 4" type="StaticBody3D" parent="RigidBodies"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 17.0671, 2.36044, 15.2799)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="RigidBodies/Cube 4"]
+mesh = SubResource("BoxMesh_r28mn")
+surface_material_override/0 = SubResource("StandardMaterial3D_7kt7w")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="RigidBodies/Cube 4"]
+shape = SubResource("BoxShape3D_a1h3m")
+
+[node name="RotatingMovement" parent="RigidBodies/Cube 4" instance=ExtResource("4_a1h3m")]
+rotatingVector = Vector3(1, 1, 1)
+speed = 60.0
+
+[node name="Cube 5" type="StaticBody3D" parent="RigidBodies"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 17.0671, 2.34125, 6.2375)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="RigidBodies/Cube 5"]
+mesh = SubResource("BoxMesh_r28mn")
+surface_material_override/0 = SubResource("StandardMaterial3D_xo1ao")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="RigidBodies/Cube 5"]
+shape = SubResource("BoxShape3D_a1h3m")
+
+[node name="RotatingMovement" parent="RigidBodies/Cube 5" instance=ExtResource("4_a1h3m")]
+rotatingVector = Vector3(1, 0.5, 0.5)
+speed = 60.0
+
+[node name="BigBall" type="RigidBody3D" parent="RigidBodies"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12.6004, 3.55636, -11.7569)
+mass = 30.0
+
+[node name="Sphere" type="MeshInstance3D" parent="RigidBodies/BigBall"]
+mesh = SubResource("SphereMesh_2q7lk")
+surface_material_override/0 = SubResource("StandardMaterial3D_a1h3m")
+
+[node name="Cube" type="MeshInstance3D" parent="RigidBodies/BigBall/Sphere"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12.6004, 3.55636, -11.7569)
+top_level = true
+mesh = SubResource("BoxMesh_fha7l")
+surface_material_override/0 = SubResource("StandardMaterial3D_vkygj")
+
+[node name="RemoteTransform3D" type="RemoteTransform3D" parent="RigidBodies/BigBall/Sphere"]
+remote_path = NodePath("../Cube")
+update_rotation = false
+update_scale = false
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="RigidBodies/BigBall"]
+shape = SubResource("SphereShape3D_vkygj")
+
+[editable path="StaticBodies/Platform"]
