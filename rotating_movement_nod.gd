@@ -30,9 +30,14 @@ var _speed : float = 0.0
 # Getting the ParentActor
 @onready var _parentActor : Node3D = get_parent()
 
+func _notification(what):
+	if what == NOTIFICATION_WM_CLOSE_REQUEST:
+		_parentActor.queue_free()
+
 # the movement code
 func _physics_process(delta: float) -> void:
 	# Only if it is enabled
+	
 	if _isEnabled :
 		var angle = _speed * delta
 		if (angle > 2*PI):

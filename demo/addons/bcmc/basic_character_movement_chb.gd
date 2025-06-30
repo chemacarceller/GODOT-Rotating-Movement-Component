@@ -263,6 +263,12 @@ var _existLeftInput : bool = false
 var _existRightInput : bool = false
 var _existJumpInput : bool = false
 
+func _notification(what):
+	if what == NOTIFICATION_WM_CLOSE_REQUEST:
+		armature.queue_free()
+		directionalObject.queue_free()
+		_myCharacter.queue_free()
+
 func _ready() -> void:
 
 	# Warning message if the armature is null, continues without rotation
