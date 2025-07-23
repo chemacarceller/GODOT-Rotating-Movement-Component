@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://d34e4jvg0j3bo"]
 
-[ext_resource type="Script" uid="uid://b733ins1j2cwh" path="res://addons/rotmc/rotating_movement_nod.gd" id="1_4hgjx"]
+[ext_resource type="Script" uid="uid://dlcbv4dp8us3o" path="res://addons/rotmc/rotating_movement_nod.gd" id="1_4hgjx"]
 
 [node name="RotatingMovement" type="Node"]
 script = ExtResource("1_4hgjx")

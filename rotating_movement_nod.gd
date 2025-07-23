@@ -32,13 +32,13 @@ var _speed : float = 0.0
 
 func _notification(what):
 	if what == NOTIFICATION_WM_CLOSE_REQUEST:
-		_parentActor.queue_free()
+		_parentActor = null
 
 # the movement code
 func _physics_process(delta: float) -> void:
 	# Only if it is enabled
 	
-	if _isEnabled :
+	if _isEnabled and _parentActor != null:
 		var angle = _speed * delta
 		if (angle > 2*PI):
 			angle -= 2*PI
