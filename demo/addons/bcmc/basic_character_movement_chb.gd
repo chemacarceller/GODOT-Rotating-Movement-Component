@@ -1,4 +1,4 @@
-class_name BasicCharacterMovementComponent extends Node
+@tool class_name BasicCharacterMovementComponent extends Node
 
 # Basic Character Movement Component
 #
@@ -31,6 +31,17 @@ enum MOVEMENT_STATE {
 	FALLING
 }
 
+# Different movement modes
+# ONESPEED -> the character moves only with a speed it is the MAX_SPEER that correspon with RUN_SPEED
+# The increase and decrease in speed is managed via the acceleration and deceleration, the acceleration should not be high, the deceleration can be high
+# The animation should be done bia a blending Locomotion
+# TWOSPEEDS -> there is a walk and run speed and can changed from one to another
+# There is also the acceleration and deceleration parameter to be configured
+enum MOVEMENT_MODE {
+	ONESPEED,
+	TWOSPEEDS
+}
+
 
 
 ################################################################################################
@@ -45,6 +56,17 @@ enum MOVEMENT_STATE {
 		isEnabled=value
 	get():
 		return isEnabled
+
+# Movement mode
+## Movement mode
+@export var movementMode : MOVEMENT_MODE = MOVEMENT_MODE.TWOSPEEDS :
+	set (value) :
+		movementMode = value
+		notify_property_list_changed()
+	get() :
+		return movementMode
+
+
 
 @export_group("Character settings")
 
@@ -65,6 +87,7 @@ enum MOVEMENT_STATE {
 		return characterForceFactor
 
 
+
 # Exported variables Inputs as public accessed with properties set/get methods
 @export_group("Components and properties")
 
@@ -76,6 +99,7 @@ enum MOVEMENT_STATE {
 	get():
 		return armature
 
+
 # DirectionalObject is to set the Forward Direction
 ## A Node3D that indicates que forward vector for the movement component
 @export var directionalObject : Node3D = null:
@@ -83,6 +107,16 @@ enum MOVEMENT_STATE {
 		directionalObject=value
 	get():
 		return directionalObject
+
+
+# The list of collisionHulls of the character so that they are also rotated when the armature is totated.
+## The list of collisionHulls of the character so that they are also rotated when the armature is totated.
+@export var collisionHullsArray : Array[CollisionShape3D] = []
+
+# Internal variable storing the offsets of each collision shape relative to the armature, calculated in _ready()
+var _collisionHullsArrayOffset : Array[float] = []
+
+
 
 @export_group("Input actions setting")
 
@@ -94,6 +128,11 @@ enum MOVEMENT_STATE {
 	get():
 		return leftInput
 
+# Indicates when the pawn turns left if it should rotate
+## Indicates when the pawn turns left if it should rotate
+@export var leftRotationEnabled : bool = true
+
+
 # Right movement input action
 ## Right movement input action
 @export var rightInput : String = "":
@@ -101,6 +140,11 @@ enum MOVEMENT_STATE {
 		rightInput=value
 	get():
 		return rightInput
+
+# Indicates when the pawn turns right if it should rotate
+## Indicates when the pawn turns right if it should rotate
+@export var rightRotationEnabled : bool = true
+
 
 # Front movement input action
 ## Front movement input action
@@ -110,6 +154,11 @@ enum MOVEMENT_STATE {
 	get():
 		return frontInput
 
+# Indicates when the pawn turns front if it should rotate
+## Indicates when the pawn turns front if it should rotate
+@export var frontRotationEnabled : bool = true
+
+
 # Rear movement input action
 ## Rear movement input action
 @export var rearInput : String = "":
@@ -117,6 +166,11 @@ enum MOVEMENT_STATE {
 		rearInput=value
 	get():
 		return rearInput
+
+# Indicates when the pawn turns rear if it should rotate
+## Indicates when the pawn turns rear if it should rotate
+@export var rearRotationEnabled : bool = true
+
 
 # Jump input action
 ## Jump input action
@@ -127,31 +181,46 @@ enum MOVEMENT_STATE {
 		return jumpInput
 
 
+
 @export_group("Transition speed settings")
 
-# How fast the character increases speed in seg
-## How fast the character increases speed in seg
-@export_range (0.001,2) var accelerationSpeed : float = 0.2:
+var _accelerationTime : float
+# How fast the character increases speed in m/seg
+## How fast the character increases speed in m/seg
+@export_range (0.1,30) var accelerationSpeed : float = 15.0:
 	set (value):
 		accelerationSpeed=value
+		if get_isRuning() :
+			_accelerationTime = RUN_SPEED / accelerationSpeed
+		else :
+			_accelerationTime = WALK_SPEED / accelerationSpeed
 	get():
 		return accelerationSpeed
 
-# How fast the character reduces speed in seg
-## How fast the character reduces speed in seg
-@export_range (0.001,2) var decelerationSpeed : float = 0.2:
+
+var _decelerationTime : float
+# How fast the character reduces speed in m/seg
+## How fast the character reduces speed in m/seg
+@export_range (0.1,30) var decelerationSpeed : float = 15.0:
 	set (value):
 		decelerationSpeed=value
+		if get_isRuning() :
+			_decelerationTime = RUN_SPEED / decelerationSpeed
+		else :
+			_decelerationTime = WALK_SPEED / decelerationSpeed
+
 	get():
 		return decelerationSpeed
 
+
 # How fast the character changes direction in seg
 ## How fast the character changes direction in seg
-@export_range (0.001,2) var transitionSpeed : float = 0.2:
+@export_range (0.01,1) var transitionTime : float = 0.25:
 	set (value):
-		transitionSpeed=value
+		transitionTime=value
 	get():
-		return transitionSpeed
+		return transitionTime
+
 
 
 # Exported variables Speeds
@@ -165,13 +234,25 @@ enum MOVEMENT_STATE {
 	get():
 		return WALK_SPEED
 
+
 # RUN SPEED
 ## RUN SPEED
-@export_range(4.1,10) var RUN_SPEED : float = 6.0:
+@export_range(1,15) var RUN_SPEED : float = 6.0:
 	set (value):
 		RUN_SPEED=value
 	get():
 		return RUN_SPEED
+
+
+# MAX SPEED used in mode ONESPEED
+## MAX SPEED used in mode ONESPEED
+@export_range(1,15) var MAX_SPEED : float = 10.0:
+	set (value):
+		MAX_SPEED=value
+		RUN_SPEED=MAX_SPEED
+		set_isRuning(true)
+	get():
+		return MAX_SPEED
 
 # JUMP SPEED
 ## JUMP SPEED
@@ -181,6 +262,7 @@ enum MOVEMENT_STATE {
 	get():
 		return JUMP_VELOCITY
 
+
 # Speed is reducing by jumping, the speed during jumping is multiply by this factor
 ## Speed is reducing by jumping, the speed during jumping is multiply by this factor
 @export_range(0,1) var SPEED_KEPT_BY_JUMPING : float = 0.4:
@@ -189,6 +271,7 @@ enum MOVEMENT_STATE {
 	get():
 		return SPEED_KEPT_BY_JUMPING
 
+
 # Speed is reducing by falling, the speed during falling is multiply by this factor
 ## Speed is reducing by falling, the speed during falling is multiply by this factor
 @export_range(0,1) var SPEED_KEPT_BY_FALLING : float = 0.4:
@@ -196,6 +279,7 @@ enum MOVEMENT_STATE {
 		SPEED_KEPT_BY_FALLING=value
 	get():
 		return SPEED_KEPT_BY_FALLING
+
 
 
 @export_group("Pushing settings")
@@ -208,6 +292,7 @@ enum MOVEMENT_STATE {
 	get():
 		return minMassRatioAllowed
 
+
 # The highest value calculated for the massRatio between character and pushing object
 ## The highest value calculated for the massRatio between character and pushing object
 @export_range(1,100) var maxMassRatioAllowed : float = 30 :
@@ -216,45 +301,66 @@ enum MOVEMENT_STATE {
 	get():
 		return maxMassRatioAllowed
 
+
+
+
+# ======================================================================================
 # Private variables (underscored)
+# ======================================================================================
+
 
 # _myCharacter without access outside because is the ParentActor
 @onready var _myCharacter : CharacterBody3D = get_parent()
 
+
 # State of the Character's movement used typically in animation tree
 var _state : MOVEMENT_STATE = MOVEMENT_STATE.IDLE
+
 
 # _speed accesible from outside get and set method
 # The _oldSpeed is the speed before a speed change, it is used to know the difference in a speed change for the right transition time
 var _oldSpeed : float = 0.0
 @onready var _speed : float = RUN_SPEED if _isRuning else WALK_SPEED
 
+# This variable indicates if we are in front of a direction change and the speed should be mantained
+# Detected comparing previos direction with actual direction
+# The changeDirection is disable when the character stops, in this case the speed should be increased or reduced by the accelerationSpeed decelerationSpeed
+var _changedDirection : bool = false
 
 # Flags indicating different states of the movementcomponent
 # _isRuning indicates if the character is running or not
 # Two possibilities Runing or Walking
 var _isRuning : bool = false
 
+
 # Indicates if the character is moving or idle
 var _isMoving : bool = true
+
 
 # self-explanatory propertie
 # _isPushing indicates it is pushing something not used as a movement state jet
 var _isPushing : bool = false
 
+
 # _isJumping indicates it is in the jumping process
 var _isJumping : bool = false
+
+
 # _Jumpkeypressed indicates that the jump key is pressed while on floor
 var _JumpKeyPressed : bool = false
+
 
 # _isFalling indicates it is in the falling process
 var _isFalling : bool = false
 
+
 # _idDoingRotation indicates it is doing the rotation
 var _isDoingRotation : bool = false
 
+
 # _inputDir : Vector generated from the inputs needed to character change
 var _inputDir : Vector2 = Vector2.ZERO
+
 
 # Flags indicating if the input actions exist
 var _existFrontInput : bool = false
@@ -263,12 +369,27 @@ var _existLeftInput : bool = false
 var _existRightInput : bool = false
 var _existJumpInput : bool = false
 
+# Stores the actual and the previous direction, used to detect a direction change
+var _direction : Vector3 = Vector3.ZERO
+var _prevDirection : Vector3 = Vector3.ZERO
+
+
+
+# ==========================================================================================
+#
+#  BUILT-IN FUNCTIONS
+#
+# ==========================================================================================
+
+# When a close notification is received
 func _notification(what):
 	if what == NOTIFICATION_WM_CLOSE_REQUEST:
 		armature = null
 		directionalObject = null
 		_myCharacter = null
 
+
+# BeginPlay funciton
 func _ready() -> void:
 
 	# Warning message if the armature is null, continues without rotation
@@ -292,7 +413,18 @@ func _ready() -> void:
 		if jumpInput == action.get_basename():
 			_existJumpInput = true
 
+	# Calculated the offsets of each collision shape relative to the armature used for the rotation of collision shapes
+	for collisionHull in collisionHullsArray :
+		_collisionHullsArrayOffset.append(abs(Vector3(collisionHull.position.x - armature.position.x,0,collisionHull.position.z - armature.position.z).length()))
 
+	# Setting the initial value of the parameters that have code so that the code to be executed
+	set_accelerationSpeed(get_accelerationSpeed())
+	set_decelerationSpeed(get_decelerationSpeed())
+	if movementMode == MOVEMENT_MODE.ONESPEED :
+		MAX_SPEED = MAX_SPEED
+
+
+# Processes every physics frame
 # Calculating the movement
 func _physics_process(delta: float) -> void:
 
@@ -321,8 +453,16 @@ func _physics_process(delta: float) -> void:
 			_inputDir = Input.get_vector(leftInput, rightInput, frontInput, rearInput)
 
 		# if there is no directionalObject defined we take the Character itself
-		var _direction : Vector3 = directionalObject.transform.basis * Vector3(_inputDir.x, 0, _inputDir.y).normalized() if directionalObject != null else _myCharacter.transform.basis * Vector3(_inputDir.x, 0, _inputDir.y).normalized()
+		_direction = directionalObject.transform.basis * Vector3(_inputDir.x, 0, _inputDir.y).normalized() if directionalObject != null else _myCharacter.transform.basis * Vector3(_inputDir.x, 0, _inputDir.y).normalized()
 
+		
+		# The direction change is detected when direction and previousdirection are different and it doesnt comes from being stopped
+		if _direction != _prevDirection and _prevDirection != Vector3.ZERO:
+			_changedDirection = true
+		else :
+			_prevDirection = _direction
+			
+		
 		# Add the gravity for fall movement when detecting is not on floor
 		if not _myCharacter.is_on_floor() and not _JumpKeyPressed:
 			_myCharacter.velocity += _myCharacter.get_gravity() * delta
@@ -378,7 +518,8 @@ func _physics_process(delta: float) -> void:
 			# Calling corroutine to make a blend in rotation inside the _rotateArmature
 			# If rotation offset is abova 1%, less than 1% doesnt call _rotateArmature
 			if not _isDoingRotation and abs(_offset)>PI/18000 and armature != null:
-				_rotateArmature(armature, -armature.rotation.y, _rotationAngle, delta)
+				if (_inputDir == Vector2(-1,0) and leftRotationEnabled) or (_inputDir == Vector2(1,0) and rightRotationEnabled) or (_inputDir == Vector2(0,-1) and frontRotationEnabled) or (_inputDir == Vector2(0,1) and rearRotationEnabled) :
+					_rotateArmature(armature, -armature.rotation.y, _rotationAngle, delta)
 			
 			# Calculate the _speed it should move, only made once if there is a speed change
 			# Kept the previous speed to calculate the diference for speed transitions
@@ -411,8 +552,16 @@ func _physics_process(delta: float) -> void:
 
 			# until the finalSpeed is arrived we increment the character's velocity by a step depending on diference between speeds and the accelerationSpeed in seg independently from the pc characteristics (delta)
 			if (_myCharacter.velocity !=_finalSpeed) :
-				_myCharacter.velocity.x = move_toward(_myCharacter.velocity.x, _finalSpeed.x, delta * abs(_speed - _oldSpeed) / accelerationSpeed)
-				_myCharacter.velocity.z = move_toward(_myCharacter.velocity.z, _finalSpeed.z, delta * abs(_speed - _oldSpeed) / accelerationSpeed)
+
+				# If a changedDirection is detected and not is falling and not is jumping the velocity is set to the real speed so that it is not reduced or incremented via the accelerationSpeed or decelerationSpeed
+				# After that the bool variable changeDirection is set to false
+				if _changedDirection and not _isJumping and not _isFalling:
+					_myCharacter.velocity = _direction * _speed
+					_changedDirection = false
+
+				# Doing the speed increment via the accelerationSpeed
+				_myCharacter.velocity.x = move_toward(_myCharacter.velocity.x, _finalSpeed.x, delta * abs(_speed - _oldSpeed) / _accelerationTime)
+				_myCharacter.velocity.z = move_toward(_myCharacter.velocity.z, _finalSpeed.z, delta * abs(_speed - _oldSpeed) / _accelerationTime)
 
 		else:
 
@@ -426,9 +575,16 @@ func _physics_process(delta: float) -> void:
 			# We arrive the zero velocity by a factor of decelerationSpeed seconds
 			
 			if (_myCharacter.velocity != Vector3.ZERO) :
-				_myCharacter.velocity.x = move_toward(_myCharacter.velocity.x, 0, delta * abs(_speed - _oldSpeed)  / decelerationSpeed)
-				_myCharacter.velocity.z = move_toward(_myCharacter.velocity.z, 0, delta * abs(_speed - _oldSpeed) / decelerationSpeed)
+				# The speed is decrease via the decelerationSpeed
+				_myCharacter.velocity.x = move_toward(_myCharacter.velocity.x, 0, delta * abs(_speed - _oldSpeed)  / _decelerationTime)
+				_myCharacter.velocity.z = move_toward(_myCharacter.velocity.z, 0, delta * abs(_speed - _oldSpeed) / _decelerationTime)
 			else:
+				# Seting the previous direction that is Vector3.ZERO
+				_prevDirection = _direction
+				
+				# If bu decreasing the speed it arrives zero (it stops) the change direction flag is disabled
+				_changedDirection = false
+				
 				# Setting to false the ismoving flag to indicate that there is no movement
 				set_isMoving(false)
 				if not _isFalling and not _isJumping:
@@ -449,10 +605,17 @@ func _physics_process(delta: float) -> void:
 			_pushAwwayRigidbody()
 
 
+
+# ===================================================================================================
+#
+#   HELPING FUNCTIONS
+#
+# ===================================================================================================
+
 func _rotateArmature(armatureComponent : Node3D, oldRotationAngle : float, newRotationAngle : float, delta : float) -> void:
 
 	# How much it must rotate in each frame is between 0 and 1
-	var _step : float = delta / transitionSpeed
+	var _step : float = delta / transitionTime
 
 	# We check the doingRotation flag once the rotateArmature movement begins
 	_isDoingRotation = true
@@ -485,8 +648,18 @@ func _rotateArmature(armatureComponent : Node3D, oldRotationAngle : float, newRo
 		# Rotation to apply in this frame
 		var x : float = lerp(oldRotationAngle,newRotationAngle, _step)
 		armatureComponent.rotation.y=-x
+
+		# Also the shapes indicated must be rotated
+		var index : int = 0
+		for collisionHull in collisionHullsArray :
+			# The position of the shape calculation
+			collisionHull.position = -armatureComponent.basis.z.normalized() * _collisionHullsArrayOffset[index] + Vector3(0,collisionHull.position.y,0)
+			# The rotation of the shape calculation
+			collisionHull.rotation.y = -x
+			index += 1
+
 		# As it is used lerp the _step must be increased for the next frame
-		_step += delta / transitionSpeed
+		_step += delta / transitionTime
 
 		# Corroutine stoping function when frame's end comes
 		await  get_tree().physics_frame
@@ -535,72 +708,115 @@ func _pushAwwayRigidbody() -> void :
 
 
 # PUBLIC API of this BasicCharacterComponent Getter and Setters methods
+# Getters and setters method
+# For the private variables it is used the traditional getter and setter methods instead
+# of properties used for exported variables
+
 
 # Returns the state of the character movement
 func get_state() -> MOVEMENT_STATE:
 	return _state
 
+
 # methods to check, start and stop the movement. For example to make an animation that requires to stop the movement
 func get_isMoving() -> bool :
 	return _isMoving
 
+
 func set_isMoving(value : bool) :
 	_isMoving = value
 
+
 func stop_movement() -> void:
 	set_isMoving(false)
+
 
 func start_movement() -> void:
 	set_isMoving(true)
 
 
-# Getters and setters method
-# For the private variables it is used the traditional getter and setter methods instead
-# of properties used for exported variables
-
 func get_speed() -> float:
 	return _speed
+
 
 func set_speed(value : float):
 	_speed = value
 
+
 func get_isRuning() -> bool:
 	return _isRuning
 
+
 func set_isRuning(value : bool):
 	_isRuning = value
+	set_accelerationSpeed(get_accelerationSpeed())
+	set_decelerationSpeed(get_decelerationSpeed())
+	if movementMode == MOVEMENT_MODE.ONESPEED :
+		_isRuning = true
+
 
 func get_isPushing() -> bool:
 	return _isPushing
 
+
 func set_isPushing(value : bool):
 	_isPushing = value
+
 
 func get_isFalling() -> bool:
 	return _isFalling
 
+
 func set_isFalling(value : bool):
 	_isFalling = value
+
 
 func get_isJumping() -> bool:
 	return _isJumping
 
+
 func set_isJumping(value : bool):
 	_isJumping = value
+
 
 func get_isDoingRotation() -> bool:
 	return _isDoingRotation
 
+
 func set_isDoingRotation(value : bool):
 	_isDoingRotation = value
 
+
 func get_inputDir() -> Vector2:
 	return _inputDir
+
 
 func set_inputDir(value : Vector2):
 	_inputDir = value
 
 
+func set_accelerationSpeed(value : float) :
+	accelerationSpeed = value
+
+
+func get_accelerationSpeed() -> float :
+	return accelerationSpeed
+
+
+func set_decelerationSpeed(value : float) :
+	decelerationSpeed = value
+
+
+func get_decelerationSpeed() -> float :
+	return decelerationSpeed
+
+
+
+# ===================================================================================================
+#
+#  CONTEXT FUNCTIONS
+#
+# ===================================================================================================
 
 # Gets the basic character movement context to translate it to another same type movement
 func get_context() -> BasicCharacterMovementData:
@@ -612,6 +828,7 @@ func get_context() -> BasicCharacterMovementData:
 	context.isJumping = get_isJumping()
 	return context
 
+
 # Sets the basic character movement context to translate it to another same type movement
 func set_context(context : BasicCharacterMovementData):
 	set_inputDir(context.inputDir)
@@ -619,3 +836,14 @@ func set_context(context : BasicCharacterMovementData):
 	set_isPushing(context.isPushing)
 	set_isJumping(context.isJumping)
 	set_isFalling(context.isFalling)
+
+
+
+# This function is used so that the editor's options
+func _validate_property(property: Dictionary):
+	if property.name in "WALK_SPEED" and movementMode != MOVEMENT_MODE.TWOSPEEDS :
+		property.usage = PROPERTY_USAGE_NO_EDITOR
+	if property.name in "RUN_SPEED" and movementMode != MOVEMENT_MODE.TWOSPEEDS :
+		property.usage = PROPERTY_USAGE_NO_EDITOR
+	if property.name in "MAX_SPEED" and movementMode != MOVEMENT_MODE.ONESPEED :
+		property.usage = PROPERTY_USAGE_NO_EDITOR
